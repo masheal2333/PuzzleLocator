@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼图碎片定位器 - 自然拟态风格展示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --nature-primary: #8db580;     /* 柔和绿色 */
+            --nature-secondary: #d5c7b3;   /* 温暖米色 */
+            --nature-accent: #94618e;      /* 紫色点缀 */
+            --nature-dark: #49392c;        /* 深棕色 */
+            --nature-light: #f8f5f0;       /* 浅米色 */
+            --nature-shadow-dark: rgba(73, 57, 44, 0.2);  /* 阴影深色 */
+            --nature-shadow-light: rgba(255, 255, 255, 0.7); /* 阴影亮色 */
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--nature-light);
+            color: var(--nature-dark);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background-color: var(--nature-light);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 5px 15px var(--nature-shadow-dark);
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: var(--nature-dark);
+            font-size: 32px;
+            position: relative;
+        }
+        
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, var(--nature-primary), var(--nature-accent));
+            border-radius: 3px;
+        }
+        
+        .description {
+            text-align: center;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            font-size: 18px;
+            color: var(--nature-dark);
+            background-color: var(--nature-light);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                8px 8px 16px var(--nature-shadow-dark),
+                -8px -8px 16px var(--nature-shadow-light);
+        }
+        
+        .screens-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 50px;
+            padding: 20px;
+            margin-bottom: 50px;
+        }
+        
+        .screen-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .screen-title {
+            margin: 10px 0;
+            text-align: center;
+            color: var(--nature-accent);
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .screen-desc {
+            text-align: center;
+            max-width: 300px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: var(--nature-dark);
+            opacity: 0.8;
+        }
+        
+        .screen-frame {
+            position: relative;
+            width: 393px; /* iPhone 15尺寸 */
+            height: 852px;
+            border-radius: 49px;
+            overflow: hidden;
+            background-color: var(--nature-light);
+            box-shadow: 
+                15px 15px 30px var(--nature-shadow-dark),
+                -15px -15px 30px var(--nature-shadow-light);
+            transition: all 0.3s ease;
+        }
+        
+        .screen-frame:hover {
+            transform: translateY(-10px);
+            box-shadow: 
+                20px 20px 40px var(--nature-shadow-dark),
+                -20px -20px 40px var(--nature-shadow-light);
+        }
+        
+        .screen-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .features {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: var(--nature-light);
+            border-radius: 20px;
+            box-shadow: 
+                8px 8px 16px var(--nature-shadow-dark),
+                -8px -8px 16px var(--nature-shadow-light);
+        }
+        
+        .features h2 {
+            color: var(--nature-dark);
+            border-bottom: 2px solid var(--nature-primary);
+            padding-bottom: 15px;
+            text-align: center;
+            margin-top: 0;
+        }
+        
+        .features ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .features li {
+            padding: 15px 0;
+            border-bottom: 1px dashed var(--nature-secondary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .features li:last-child {
+            border-bottom: none;
+        }
+        
+        .features li i {
+            color: var(--nature-primary);
+            margin-right: 15px;
+            font-size: 20px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: var(--nature-light);
+            box-shadow: 
+                3px 3px 6px var(--nature-shadow-dark),
+                -3px -3px 6px var(--nature-shadow-light);
+        }
+        
+        .design-principles {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin: 50px auto;
+            max-width: 1200px;
+            padding: 0 20px;
+        }
+        
+        .principle-card {
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+            padding: 30px;
+            background-color: var(--nature-light);
+            border-radius: 20px;
+            box-shadow: 
+                8px 8px 16px var(--nature-shadow-dark),
+                -8px -8px 16px var(--nature-shadow-light);
+            text-align: center;
+        }
+        
+        .principle-card i {
+            font-size: 40px;
+            color: var(--nature-primary);
+            margin-bottom: 20px;
+        }
+        
+        .principle-card h3 {
+            color: var(--nature-dark);
+            margin: 10px 0;
+            font-size: 22px;
+        }
+        
+        .principle-card p {
+            color: var(--nature-dark);
+            opacity: 0.8;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 50px;
+            color: var(--nature-dark);
+            background-color: var(--nature-light);
+            border-top: 1px solid var(--nature-secondary);
+        }
+        
+        .compare-button {
+            display: inline-block;
+            margin: 30px auto;
+            padding: 15px 30px;
+            background-color: var(--nature-light);
+            color: var(--nature-dark);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            box-shadow: 
+                8px 8px 16px var(--nature-shadow-dark),
+                -8px -8px 16px var(--nature-shadow-light);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .compare-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                10px 10px 20px var(--nature-shadow-dark),
+                -10px -10px 20px var(--nature-shadow-light);
+        }
+        
+        .compare-button:active {
+            box-shadow: 
+                inset 4px 4px 8px var(--nature-shadow-dark),
+                inset -4px -4px 8px var(--nature-shadow-light);
+            transform: translateY(0);
+        }
+        
+        .compare-button i {
+            margin-right: 10px;
+        }
+        
+        /* 自然元素装饰 */
+        .nature-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .nature-leaf {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%238db580' d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22C6.66,19.7 8,17.65 10,16.09V22h2v-6c0.86,0.57 1.67,1.13 2.41,1.72L13,16.27C12.31,15.91 11.68,15.62 11.05,15.41C12.1,14.94 13.26,14.67 14.61,14.67C15.31,14.67 16.06,14.75 16.87,14.92C17.84,14.16 18.71,13.18 19.5,12L17,8z'/%3E%3C/svg%3E");
+            opacity: 0.05;
+        }
+        
+        @media (max-width: 768px) {
+            .screen-frame {
+                width: 320px;
+                height: 690px;
+                border-radius: 30px;
+            }
+            
+            .principle-card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 自然元素装饰 -->
+    <div class="nature-elements">
+        <div class="nature-leaf" style="top: 15%; left: 10%; transform: rotate(45deg);"></div>
+        <div class="nature-leaf" style="top: 25%; right: 15%; transform: rotate(-30deg);"></div>
+        <div class="nature-leaf" style="bottom: 30%; left: 15%; transform: rotate(15deg);"></div>
+        <div class="nature-leaf" style="bottom: 20%; right: 10%; transform: rotate(-60deg);"></div>
+        <div class="nature-leaf" style="top: 50%; left: 50%; transform: rotate(90deg);"></div>
+    </div>
+
+    <header class="header">
+        <h1>拼图碎片定位App - 自然拟态风格</h1>
+    </header>
+    
+    <div class="description">
+        <p>基于自然拟态(Natural Neumorphism)设计理念打造的拼图碎片定位应用，融合了自然元素与柔和质感，为用户提供轻松舒适的操作体验。设计灵感来源于自然界的有机形态和柔和色调，通过精心调整的阴影与高光创造出轻盈立体的视觉效果。</p>
+    </div>
+    
+    <div class="screens-container">
+        <div class="screen-item">
+            <h3 class="screen-title">首页</h3>
+            <p class="screen-desc">应用入口，展示主要功能和开始使用按钮</p>
+            <div class="screen-frame">
+                <iframe src="index-nature.html" title="首页"></iframe>
+            </div>
+        </div>
+        
+        <div class="screen-item">
+            <h3 class="screen-title">扫描拼图碎片</h3>
+            <p class="screen-desc">拍摄或上传需要定位的拼图碎片</p>
+            <div class="screen-frame">
+                <iframe src="scan-nature.html" title="扫描拼图碎片"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <div class="features">
+        <h2>自然拟态设计特点</h2>
+        <ul>
+            <li>
+                <i class="fas fa-palette"></i>
+                <span>柔和自然色调，选用舒适的绿色、米色和紫色作为主色系</span>
+            </li>
+            <li>
+                <i class="fas fa-layer-group"></i>
+                <span>通过精细调整的阴影与高光创造真实感与立体感</span>
+            </li>
+            <li>
+                <i class="fas fa-brush"></i>
+                <span>圆角设计与有机形状，模仿自然界柔和的曲线</span>
+            </li>
+            <li>
+                <i class="fas fa-water"></i>
+                <span>流畅的波纹动画效果，增强交互反馈</span>
+            </li>
+            <li>
+                <i class="fas fa-leaf"></i>
+                <span>融入自然元素作为装饰，创造宁静和谐的氛围</span>
+            </li>
+            <li>
+                <i class="fas fa-hand-point-up"></i>
+                <span>拟物化按钮与控件，提供按下与弹起的物理感受</span>
+            </li>
+            <li>
+                <i class="fas fa-mobile-alt"></i>
+                <span>适配iPhone 15界面，包括灵动岛与圆角边框</span>
+            </li>
+            <li>
+                <i class="fas fa-eye"></i>
+                <span>高对比度文本与简洁排版，确保易读性</span>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="design-principles">
+        <div class="principle-card">
+            <i class="fas fa-feather-alt"></i>
+            <h3>轻盈质感</h3>
+            <p>通过精细的阴影处理，创造出轻盈、漂浮的视觉效果，使界面元素看起来舒适且易于交互。阴影的深浅与方向模拟自然光源，增强真实感。</p>
+        </div>
+        
+        <div class="principle-card">
+            <i class="fas fa-seedling"></i>
+            <h3>有机形态</h3>
+            <p>采用圆润的边角与有机曲线，避免锐利的边缘，模拟自然界中的形态。界面元素如同自然生长，和谐共存，创造宁静舒适的视觉环境。</p>
+        </div>
+        
+        <div class="principle-card">
+            <i class="fas fa-wind"></i>
+            <h3>流畅体验</h3>
+            <p>动画与交互效果灵感来源于自然界的运动规律，如波纹、生长与呼吸。通过这些细腻的动效，增强用户与界面的情感连接。</p>
+        </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <a href="showcase.html" class="compare-button">
+            <i class="fas fa-exchange-alt"></i>查看赛博朋克风格
+        </a>
+    </div>
+    
+    <footer class="footer">
+        <p>拼图碎片定位App © 2023 | 自然拟态风格设计展示</p>
+    </footer>
+</body>
+</html> 

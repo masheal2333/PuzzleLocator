@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>扫描拼图碎片 - 拼图碎片定位器</title>
+    <link rel="stylesheet" href="css/nature-neumorphic.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--nature-light);
+            font-family: var(--font-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .scan-container {
+            text-align: center;
+            padding: 20px 15px;
+        }
+        
+        .instruction {
+            text-align: center;
+            margin: 20px 0 25px;
+            font-size: 16px;
+            color: var(--nature-dark);
+            opacity: 0.9;
+            padding: 0 15px;
+        }
+        
+        .camera-button {
+            margin: 40px auto;
+            width: 80%;
+            display: block;
+            padding: 15px 0;
+        }
+        
+        /* 扫描区辅助元素 */
+        .photo-area-helper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            border: 2px dashed var(--nature-primary);
+            border-radius: 15px;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .photo-area-helper::before,
+        .photo-area-helper::after {
+            content: '';
+            position: absolute;
+            background-color: var(--nature-primary);
+            opacity: 0.5;
+        }
+        
+        .photo-area-helper::before {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            transform: translateY(-50%);
+        }
+        
+        .photo-area-helper::after {
+            top: 0;
+            left: 50%;
+            width: 1px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+        
+        .photo-note {
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--nature-accent);
+            font-style: italic;
+            opacity: 0.8;
+        }
+        
+        .scan-flash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0;
+            z-index: 10;
+            border-radius: 16px;
+            pointer-events: none;
+        }
+        
+        /* 拍摄区域样式 */
+        .photo-area {
+            width: 300px;
+            height: 220px;
+            margin: 0 auto 20px;
+            background-color: var(--nature-light);
+            border-radius: 16px;
+            box-shadow: 
+                inset 4px 4px 8px var(--nature-shadow-dark),
+                inset -4px -4px 8px var(--nature-shadow-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .photo-area i {
+            font-size: 40px;
+            color: var(--nature-primary);
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+        
+        .photo-area p {
+            margin: 5px 0;
+            color: var(--nature-dark);
+            font-size: 15px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- iPhone 15框架 -->
+    <div class="iphone-frame">
+        <div class="screen">
+            <!-- 灵动岛 -->
+            <div class="dynamic-island"></div>
+            
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span class="time">9:41</span>
+                </div>
+                <div class="status-right">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            
+            <!-- 主要内容 -->
+            <div class="main-content">
+                <a href="index-nature.html" class="back-button">
+                    <i class="fas fa-chevron-left"></i> 返回
+                </a>
+                
+                <div class="scan-container">
+                    <h1 class="page-title">拍拼图碎片</h1>
+                    
+                    <div class="step-indicator">
+                        <div class="step active"></div>
+                        <div class="step"></div>
+                        <div class="step"></div>
+                    </div>
+                    
+                    <p class="instruction">请将拼图碎片放在平坦表面并拍照</p>
+                    
+                    <div class="photo-area">
+                        <div class="photo-area-helper"></div>
+                        <div class="scan-flash" id="scanFlash"></div>
+                        <i class="fas fa-puzzle-piece"></i>
+                        <p>将拼图碎片放在中心位置</p>
+                        <p class="photo-note">确保光线充足，边缘清晰可见</p>
+                    </div>
+                    
+                    <button class="neumorphic-button camera-button" id="captureButton">
+                        <i class="fas fa-camera"></i>
+                        拍摄碎片
+                    </button>
+                </div>
+                
+                <div class="safe-area-bottom"></div>
+            </div>
+            
+            <!-- 底部指示条 -->
+            <div class="home-indicator"></div>
+        </div>
+    </div>
+    
+    <script src="js/nature-neumorphic.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加中心波纹效果到拼图区域
+            const photoArea = document.querySelector('.photo-area');
+            if (photoArea) {
+                window.natureNeumorphic.addCenterRipple(photoArea);
+            }
+            
+            // 拍照按钮点击事件
+            const captureButton = document.getElementById('captureButton');
+            const scanFlash = document.getElementById('scanFlash');
+            
+            if (captureButton && scanFlash) {
+                captureButton.addEventListener('click', function() {
+                    // 闪光效果
+                    scanFlash.style.transition = 'opacity 0.1s';
+                    scanFlash.style.opacity = '1';
+                    
+                    setTimeout(() => {
+                        scanFlash.style.opacity = '0';
+                        
+                        // 显示拍照成功通知
+                        window.natureNeumorphic.simulateSystemNotification('拍照成功', '准备进入下一步');
+                        
+                        // 延迟后跳转到下一页
+                        setTimeout(() => {
+                            location.href = 'full-puzzle-nature.html';
+                        }, 1500);
+                    }, 200);
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

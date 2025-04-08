@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>拼图碎片定位器</title>
+    <link rel="stylesheet" href="css/nature-neumorphic.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--nature-light);
+            font-family: var(--font-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .app-logo {
+            width: 120px;
+            height: 120px;
+            margin: 30px auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .app-logo-inner {
+            width: 100px;
+            height: 100px;
+            border-radius: 25px;
+            background-color: var(--nature-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            color: var(--nature-primary);
+            box-shadow: 
+                6px 6px 12px var(--nature-shadow-dark),
+                -6px -6px 12px var(--nature-shadow-light);
+        }
+        
+        .app-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .app-title h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: var(--nature-dark);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .app-title h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--nature-accent), transparent);
+            border-radius: 3px;
+        }
+        
+        .app-title p {
+            font-size: 18px;
+            color: var(--nature-dark);
+            opacity: 0.8;
+            margin-top: 15px;
+        }
+        
+        .start-button {
+            margin: 100px auto 40px;
+            width: 80%;
+            display: block;
+            padding: 18px 0;
+            font-size: 20px;
+        }
+        
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(141, 181, 128, 0.4);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- iPhone 15框架 -->
+    <div class="iphone-frame">
+        <div class="screen">
+            <!-- 灵动岛 -->
+            <div class="dynamic-island"></div>
+            
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span class="time">9:41</span>
+                </div>
+                <div class="status-right">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            
+            <!-- 主要内容 -->
+            <div class="main-content">
+                <div class="app-logo">
+                    <div class="app-logo-inner">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                </div>
+                
+                <div class="app-title">
+                    <h1>拼图碎片定位器</h1>
+                    <p>让拼图变得更简单</p>
+                </div>
+                
+                <button class="neumorphic-button start-button" onclick="location.href='scan-nature.html'">
+                    <i class="fas fa-play"></i> 开始定位
+                </button>
+                
+                <div class="safe-area-bottom"></div>
+            </div>
+            
+            <!-- 底部指示条 -->
+            <div class="home-indicator"></div>
+        </div>
+    </div>
+    
+    <script src="js/nature-neumorphic.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 模拟灵动岛通知效果
+            setTimeout(() => {
+                window.natureNeumorphic.simulateSystemNotification('应用已启动', '欢迎使用拼图碎片定位器');
+            }, 1500);
+            
+            // 添加中心波纹效果到拼图屏幕
+            const photoArea = document.querySelector('.app-logo-inner');
+            if (photoArea) {
+                window.natureNeumorphic.addCenterRipple(photoArea);
+            }
+        });
+    </script>
+</body>
+</html> 

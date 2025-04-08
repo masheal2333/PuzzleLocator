@@ -1,0 +1,72 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+### 代码规范
+- 使用SwiftLint保证代码风格一致性
+- 遵循Swift API设计指南
+- 文件名与类型名保持一致，使用PascalCase
+
+### 架构模式
+- 采用MVVM架构
+- 使用Combine进行数据绑定
+- 使用依赖注入管理服务
+
+### 视图组织
+- 每个视图拆分为可复用组件
+- 提取通用样式到Theme
+- 保持视图的纯函数特性，逻辑放在ViewModel
+
+### 状态管理
+- 本地状态使用@State, @Binding
+- 跨视图状态使用@ObservedObject, @EnvironmentObject
+- 全局状态可考虑使用Redux模式
+
+### 本地存储
+- 用户配置使用UserDefaults
+- 小型数据使用PropertyList或JSON
+- 大型/关系型数据使用CoreData
+
+
+# iOS应用项目规范
+
+### 项目配置管理
+- 避免直接编辑.pbxproj文件，使用Xcode界面修改项目设置
+- 使用xcodegen等工具管理项目配置
+- 关键设置使用xcconfig文件管理
+- 分离代码和构建配置，避免在代码中硬编码环境相关配置
+
+### 签名与证书
+- 使用自动签名模式(CODE_SIGN_STYLE = Automatic)简化开发流程
+- 为模拟器设置特殊的签名身份(CODE_SIGN_IDENTITY[sdk=iphonesimulator*])
+- 避免在源码库中包含开发者证书和配置文件
+- 使用环境变量或配置文件存储DEVELOPMENT_TEAM等敏感信息
+
+### 资源管理
+- 避免重复的目录结构和资源文件
+- 使用Assets Catalog管理图片和颜色资源
+- 多语言字符串使用.xcstrings格式
+- 保持清晰的资源命名约定
+
+### 错误预防与恢复
+- 重大修改前进行项目备份或创建分支
+- 使用版本控制系统保护配置文件
+- 定期验证项目文件完整性(plutil -lint)
+- 出现问题时优先考虑"重建而非修复"策略
+- 记录构建设置，便于在需要时重新创建
+
+### 灾难恢复
+- 当项目文件损坏时使用xcodegen从配置文件重建
+- 保持项目结构与源码分离，便于重建
+- 使用脚本自动化项目设置和配置过程
+- 定期生成项目配置快照，便于恢复
+
+### 效率与可维护性
+- 使用预览功能加速UI迭代
+- 组件化设计促进代码复用
+- 强类型设计减少运行时错误
+- 模块化构建便于团队协作 

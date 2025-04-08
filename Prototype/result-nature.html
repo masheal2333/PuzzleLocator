@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>拼图碎片定位结果 - 拼图碎片定位器</title>
+    <link rel="stylesheet" href="css/nature-neumorphic.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--nature-light);
+            font-family: var(--font-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .result-container {
+            text-align: center;
+            padding: 20px 15px;
+        }
+        
+        .result-title {
+            color: var(--nature-dark);
+            margin-bottom: 5px;
+        }
+        
+        .result-subtitle {
+            color: var(--nature-primary);
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        
+        .result-image-container {
+            position: relative;
+            margin: 0 auto 10px;
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 
+                8px 8px 16px var(--nature-shadow-dark),
+                -8px -8px 16px var(--nature-shadow-light);
+            cursor: grab;
+        }
+        
+        .result-image-container.dragging {
+            cursor: grabbing;
+        }
+        
+        .result-image-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: translate(0, 0);
+            transition: transform 0.1s ease;
+        }
+        
+        .result-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: var(--nature-light);
+        }
+        
+        .highlight-marker {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            top: 120px;
+            left: 170px;
+            background-color: rgba(141, 181, 128, 0.4);
+            border: 2px solid var(--nature-primary);
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+            pointer-events: none;
+        }
+        
+        .zoom-hint {
+            font-size: 12px;
+            color: var(--nature-accent);
+            margin: 5px 0 15px;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .zoom-hint.visible {
+            opacity: 0.8;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+        }
+        
+        .zoom-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .zoom-button {
+            width: 50px;
+            height: 50px;
+            margin: 0 10px;
+            border-radius: 50%;
+            background-color: var(--nature-light);
+            color: var(--nature-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 
+                5px 5px 10px var(--nature-shadow-dark),
+                -5px -5px 10px var(--nature-shadow-light);
+            transition: all 0.2s ease;
+        }
+        
+        .zoom-button:active {
+            box-shadow: 
+                inset 3px 3px 6px var(--nature-shadow-dark),
+                inset -3px -3px 6px var(--nature-shadow-light);
+        }
+        
+        .result-info {
+            background-color: var(--nature-light);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 25px;
+            box-shadow: 
+                inset 2px 2px 5px var(--nature-shadow-dark),
+                inset -2px -2px 5px var(--nature-shadow-light);
+        }
+        
+        .result-info p {
+            margin: 8px 0;
+            color: var(--nature-dark);
+            font-size: 15px;
+        }
+        
+        .result-info .highlight {
+            color: var(--nature-accent);
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .action-button {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- iPhone 15框架 -->
+    <div class="iphone-frame">
+        <div class="screen">
+            <!-- 灵动岛 -->
+            <div class="dynamic-island"></div>
+            
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span class="time">9:41</span>
+                </div>
+                <div class="status-right">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            
+            <!-- 主要内容 -->
+            <div class="main-content">
+                <a href="full-puzzle-nature.html" class="back-button">
+                    <i class="fas fa-chevron-left"></i> 返回
+                </a>
+                
+                <div class="result-container">
+                    <h1 class="page-title">拼图碎片定位</h1>
+                    
+                    <div class="step-indicator">
+                        <div class="step completed"></div>
+                        <div class="step completed"></div>
+                        <div class="step active"></div>
+                    </div>
+                    
+                    <p class="result-subtitle">已找到碎片位置</p>
+                    
+                    <div class="result-image-container" id="resultImageContainer">
+                        <div class="result-image-wrapper" id="resultImageWrapper">
+                            <img src="images/puzzle_result.jpg" alt="拼图结果" class="result-image" id="resultImage">
+                            <div class="highlight-marker" id="highlightMarker"></div>
+                        </div>
+                    </div>
+                    
+                    <p class="zoom-hint" id="zoomHint">放大后可拖动查看不同区域</p>
+                    
+                    <div class="zoom-controls">
+                        <button class="zoom-button" id="zoomOutButton"><i class="fas fa-search-minus"></i></button>
+                        <button class="zoom-button" id="resetZoomButton"><i class="fas fa-redo-alt"></i></button>
+                        <button class="zoom-button" id="zoomInButton"><i class="fas fa-search-plus"></i></button>
+                    </div>
+                    
+                    <div class="result-info">
+                        <p>匹配度: <span class="highlight">98%</span></p>
+                        <p>碎片位置: <span class="highlight">右上角区域</span></p>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="neumorphic-button action-button">
+                            <i class="fas fa-save"></i> 保存结果
+                        </button>
+                        <button class="neumorphic-button action-button" onclick="location.href='scan-nature.html'">
+                            <i class="fas fa-redo"></i> 重新扫描
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="safe-area-bottom"></div>
+            </div>
+            
+            <!-- 底部指示条 -->
+            <div class="home-indicator"></div>
+        </div>
+    </div>
+    
+    <script src="js/nature-neumorphic.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 图片缩放功能
+            const resultImage = document.getElementById('resultImage');
+            const highlightMarker = document.getElementById('highlightMarker');
+            const zoomInButton = document.getElementById('zoomInButton');
+            const zoomOutButton = document.getElementById('zoomOutButton');
+            const resetZoomButton = document.getElementById('resetZoomButton');
+            const zoomHint = document.getElementById('zoomHint');
+            const resultImageContainer = document.getElementById('resultImageContainer');
+            const resultImageWrapper = document.getElementById('resultImageWrapper');
+            
+            let scale = 1;
+            const maxScale = 2.5;
+            const minScale = 1;
+            
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            let currentX = 0;
+            let currentY = 0;
+            
+            if (zoomInButton && zoomOutButton && resetZoomButton && resultImage && highlightMarker) {
+                zoomInButton.addEventListener('click', function() {
+                    if (scale < maxScale) {
+                        scale += 0.2;
+                        updateZoom();
+                    }
+                });
+                
+                zoomOutButton.addEventListener('click', function() {
+                    if (scale > minScale) {
+                        scale -= 0.2;
+                        updateZoom();
+                    }
+                });
+                
+                // 添加重置缩放功能
+                resetZoomButton.addEventListener('click', function() {
+                    scale = 1;
+                    currentX = 0;
+                    currentY = 0;
+                    resultImageWrapper.style.transform = 'translate(0, 0)';
+                    updateZoom();
+                });
+                
+                function updateZoom() {
+                    // 设置图片缩放并固定缩放中心点
+                    resultImage.style.transform = `scale(${scale})`;
+                    resultImage.style.transformOrigin = 'center center';
+                    
+                    // 显示或隐藏拖动提示
+                    if (scale > 1) {
+                        zoomHint.classList.add('visible');
+                    } else {
+                        zoomHint.classList.remove('visible');
+                        // 重置位置
+                        currentX = 0;
+                        currentY = 0;
+                        resultImageWrapper.style.transform = 'translate(0, 0)';
+                    }
+                    
+                    // 标记应该与图片一起放大缩小，而不是反向缩放
+                    // 设置标记大小随图片缩放等比例变化
+                    highlightMarker.style.width = `${60 * scale}px`;
+                    highlightMarker.style.height = `${60 * scale}px`;
+                    highlightMarker.style.transform = 'none'; // 移除之前的反向缩放
+                    
+                    // 缩放时调整标记边框粗细，确保在不同缩放级别下视觉上一致
+                    highlightMarker.style.borderWidth = `${2 * scale}px`;
+                    
+                    console.log(`图片缩放: ${scale}, 标记框大小: ${60 * scale}px`);
+                }
+            }
+            
+            // 添加结果区域的波纹效果
+            if (resultImageContainer) {
+                resultImageContainer.addEventListener('click', function(e) {
+                    if (!isDragging) {
+                        const rect = this.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        window.natureNeumorphic.createRipple(this, x, y);
+                    }
+                });
+            }
+            
+            // 显示通知
+            setTimeout(() => {
+                window.natureNeumorphic.simulateSystemNotification('定位完成', '已找到碎片位置');
+            }, 500);
+            
+            // 拖动功能
+            resultImageContainer.addEventListener('mousedown', startDrag);
+            resultImageContainer.addEventListener('touchstart', startDrag);
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+            document.addEventListener('mouseleave', endDrag);
+
+            function startDrag(e) {
+                if (scale > 1) {
+                    isDragging = true;
+                    resultImageContainer.classList.add('dragging');
+                    
+                    startX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+                    startY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+                    
+                    e.preventDefault();
+                }
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+                
+                const deltaX = clientX - startX;
+                const deltaY = clientY - startY;
+                
+                const newX = currentX + deltaX;
+                const newY = currentY + deltaY;
+                
+                // 限制拖动范围，基于当前缩放比例计算
+                const maxOffset = (scale - 1) * 150; // 150 = 容器宽度/2
+                const limitedX = Math.max(-maxOffset, Math.min(maxOffset, newX));
+                const limitedY = Math.max(-maxOffset, Math.min(maxOffset, newY));
+                
+                resultImageWrapper.style.transform = `translate(${limitedX}px, ${limitedY}px)`;
+                
+                startX = clientX;
+                startY = clientY;
+                currentX = limitedX;
+                currentY = limitedY;
+            }
+
+            function endDrag() {
+                if (isDragging) {
+                    isDragging = false;
+                    resultImageContainer.classList.remove('dragging');
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

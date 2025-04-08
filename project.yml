@@ -1,0 +1,40 @@
+name: PuzzleLocator
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: 15.0
+targets:
+  PuzzleLocator:
+    type: application
+    platform: iOS
+    sources:
+      - path: PuzzleLocator
+        excludes:
+          - "PuzzleLocator/PuzzleLocator" # 排除重复目录
+    resources:
+      - path: PuzzleLocator/Assets.xcassets
+      - path: PuzzleLocator/Preview Content
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG PREVIEW_TOOLS
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.PuzzleLocator
+        ENABLE_PREVIEWS: YES
+        CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: YES
+      configs:
+        debug:
+          CODE_SIGN_IDENTITY[sdk=iphonesimulator*]: "-"
+          CODE_SIGN_IDENTITY: "-"
+          CODE_SIGNING_REQUIRED: NO
+          CODE_SIGNING_ALLOWED: NO
+        release:
+          CODE_SIGN_IDENTITY[sdk=iphonesimulator*]: iPhone Developer
+    info:
+      path: PuzzleLocator/Info.plist
+      properties:
+        UILaunchScreen: {}
+        NSCameraUsageDescription: 需要使用您的相机来拍摄拼图碎片和完整拼图
+        NSPhotoLibraryUsageDescription: 需要访问您的照片库来选择拼图图像
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight, UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown]
