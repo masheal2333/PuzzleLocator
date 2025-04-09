@@ -94,8 +94,20 @@ struct HomeView: View {
                         message: "欢迎使用拼图碎片定位器"
                     )
                     
-                    // 更新相机状态
-                    isCamera = true
+                    // 使用新的导航方法
+                    if let appState = UIApplication.shared.windows.first?.rootViewController?.view.findEnvironmentObject(AppState.self) {
+                        appState.navigateToScanPage()
+                    } else {
+                        // 备用方案
+                        isCamera = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            withAnimation {
+                                if let appState = UIApplication.shared.windows.first?.rootViewController?.view.findEnvironmentObject(AppState.self) {
+                                    appState.currentTab = 1
+                                }
+                            }
+                        }
+                    }
                 }) {
                     HStack {
                         Image(systemName: "play.fill")

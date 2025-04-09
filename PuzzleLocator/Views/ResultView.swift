@@ -140,10 +140,24 @@ struct ResultView: View {
             if let highlightRect = appState.matchResult?.highlightRect {
                 GeometryReader { geometry in
                     let size = geometry.size
-                    let markerWidth = highlightRect.width * size.width * scale
-                    let markerHeight = highlightRect.height * size.height * scale
-                    let markerX = (highlightRect.minX * size.width * scale) + offset.width
-                    let markerY = (highlightRect.minY * size.height * scale) + offset.height
+                    
+                    // 计算实际显示区域（考虑图像适应视图的情况）
+                    let imageAspect = (appState.resultImage?.size.width ?? 1.0) / (appState.resultImage?.size.height ?? 1.0)
+                    let viewAspect = size.width / size.height
+                    
+                    let displaySize: CGSize = imageAspect > viewAspect 
+                        ? CGSize(width: size.width, height: size.width / imageAspect)
+                        : CGSize(width: size.height * imageAspect, height: size.height)
+                    
+                    // 计算图像在视图中的偏移
+                    let imageOffsetX = (size.width - displaySize.width) / 2
+                    let imageOffsetY = (size.height - displaySize.height) / 2
+                    
+                    // 计算高亮框的实际尺寸和位置
+                    let markerWidth = highlightRect.width * displaySize.width * scale
+                    let markerHeight = highlightRect.height * displaySize.height * scale
+                    let markerX = imageOffsetX + (highlightRect.minX * displaySize.width * scale) + offset.width
+                    let markerY = imageOffsetY + (highlightRect.minY * displaySize.height * scale) + offset.height
                     
                     ZStack {
                         // 脉动背景 - 多层脉动效果
@@ -310,7 +324,7 @@ struct ResultView: View {
                         // 碎片位置
                         infoRow(
                             label: "碎片位置:",
-                            value: matchResult.location
+                            value: String(format: "%.0f%%,%.0f%%", matchResult.location.x * 100, matchResult.location.y * 100)
                         )
                     }
                     .padding(Theme.Spacing.medium)

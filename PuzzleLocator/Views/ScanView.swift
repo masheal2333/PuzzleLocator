@@ -174,9 +174,15 @@ struct ScanView: View {
                 // 下一步按钮（仅在有图像时显示）
                 if appState.puzzlePieceImage != nil {
                     Button(action: {
-                        // 触感反馈
+                        // 增强触感反馈 - 使用双重触感提供明显的反馈
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
+                        
+                        // 再增加一次不同类型的触感
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            let secondGenerator = UIImpactFeedbackGenerator(style: .rigid)
+                            secondGenerator.impactOccurred()
+                        }
                         
                         // 通知
                         DynamicIsland.shared.showNotification(
@@ -186,8 +192,8 @@ struct ScanView: View {
                         
                         // 进入下一步 - 显示全图拍摄页面
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            // 触发显示完整拼图拍摄页面
-                            appState.isShowingFullPuzzleSheet = true
+                            // 使用专门的导航方法
+                            appState.navigateToFullPuzzleView()
                         }
                     }) {
                         HStack {
@@ -202,6 +208,7 @@ struct ScanView: View {
                         bgColor: Theme.Colors.primaryDefault,
                         fgColor: Color.white
                     ))
+                    .shadow(color: Color.black.opacity(0.3), radius: 5, x: 2, y: 2) // 增加阴影提高视觉反馈
                     .padding(.top, Theme.Spacing.medium)
                     .padding(.horizontal, Theme.Spacing.xlarge)
                 }

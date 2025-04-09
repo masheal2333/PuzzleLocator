@@ -88,6 +88,7 @@ struct NeumorphicButtonStyle: ButtonStyle {
             .padding(.vertical, Theme.Spacing.medium)
             .padding(.horizontal, Theme.Spacing.large)
             .foregroundColor(configuration.isPressed ? fgColor.opacity(0.8) : fgColor)
+            .contentShape(Rectangle())
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -98,6 +99,7 @@ struct NeumorphicButtonStyle: ButtonStyle {
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
+            .compositingGroup()
     }
 }
 
