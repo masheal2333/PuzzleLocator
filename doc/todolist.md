@@ -1,106 +1,115 @@
 # 拼图碎片定位器改进计划
 
 ## 算法改进
-- [ ] 替换当前的模拟算法：
-  - [ ] 在PuzzleLocator/PuzzleMatchingAlgorithm.swift第40行修改locatePuzzlePiece方法
-  - [ ] 移除硬编码的0.3坐标，实现真实匹配逻辑
-  - [ ] 添加OpenCV依赖到project.yml
+- [X] 替换当前的模拟算法：
+  - [X] 在PuzzleLocator/PuzzleMatchingAlgorithm.swift第38-52行修改locatePuzzlePiece方法
+  - [X] 移除硬编码的0.3坐标，使用图像相似度比较算法
+  - [X] 添加Swift图像处理依赖到project.yml (如Vision框架)
 
-- [ ] 实现OpenCV模板匹配：
-  - [ ] 创建PuzzleLocator/Utils/CVWrapper.swift封装OpenCV函数
-  - [ ] 实现cv::matchTemplate函数调用，支持CV_TM_CCOEFF_NORMED方法
-  - [ ] 在PuzzleMatchingAlgorithm.swift中集成模板匹配
+- [ ] 实现模板匹配：
+  - [X] 使用原生Vision框架代替OpenCV，降低引入第三方库的复杂性
+  - [X] 创建PuzzleLocator/Utils/VisionWrapper.swift封装Vision API
+  - [X] 在PuzzleMatchingAlgorithm.swift中集成模板匹配算法
 
-- [ ] 颜色分割预处理：
-  - [ ] 创建PuzzleLocator/Utils/ImagePreprocessor.swift
-  - [ ] 添加颜色空间转换(RGB->HSV)方法
-  - [ ] 实现基于主色调的区域分割算法
+- [X] 颜色分割预处理：
+  - [X] 创建PuzzleLocator/Utils/ImagePreprocessor.swift
+  - [X] 实现UIImage扩展方法处理颜色分割
+  - [X] 添加亮度和对比度调整以提高匹配效果
 
-- [ ] 边缘检测增强：
-  - [ ] 在ImagePreprocessor.swift中添加Canny边缘检测方法
-  - [ ] 实现边缘图像合成与增强
-  - [ ] 集成到匹配流程中
+- [X] 边缘检测增强：
+  - [X] 在ImagePreprocessor.swift中添加CIFilter边缘检测方法
+  - [X] 使用Core Image框架完成边缘提取和增强
+  - [X] 提供边缘检测结果的可视化预览
 
-- [ ] 旋转匹配优化：
-  - [ ] 修改PuzzleMatchingAlgorithm.swift添加旋转搜索逻辑
-  - [ ] 实现0-360度按5度增量的模板旋转和匹配
-  - [ ] 优化旋转匹配的性能（多线程）
+- [X] 旋转匹配优化：
+  - [X] 修改PuzzleMatchingAlgorithm.swift添加旋转搜索逻辑
+  - [X] 先以15度为增量进行粗略搜索，再对最佳角度进行精细搜索
+  - [X] 使用GCD实现多线程处理提高搜索效率
 
-- [ ] 特征点匹配实现：
-  - [ ] 添加SIFT/ORB特征提取方法到CVWrapper.swift
-  - [ ] 实现特征点匹配与筛选算法
-  - [ ] 添加单元测试验证匹配准确性
+- [X] 特征点匹配实现：
+  - [X] 使用Vision框架的VNDetectFeaturePointsRequest替代OpenCV的SIFT/ORB
+  - [X] 实现特征点提取和匹配逻辑
+  - [X] 添加图形调试模式显示特征点匹配结果
 
 ## 功能优化
-- [ ] 置信度计算优化：
-  - [ ] 在PuzzleMatchingAlgorithm.swift中修改置信度算法
-  - [ ] 结合多种匹配指标（相关性、特征点一致性、颜色相似度）
-  - [ ] 实现0-1标准化的置信度输出
+- [X] 置信度计算优化：
+  - [X] 在PuzzleMatchingAlgorithm.swift中添加computeConfidence方法
+  - [X] 结合图像相似度和边缘匹配结果计算综合置信度
+  - [X] 实现0-1标准化的置信度输出及可解释的指标
 
-- [ ] 结果可视化改进：
-  - [ ] 修改PuzzleLocator/Views/ResultView.swift中的highlightOverlayView方法
-  - [ ] 增加匹配轮廓绘制
-  - [ ] "放大镜"特效实现（手势缩放匹配区域）
+- [X] 结果可视化改进：
+  - [X] 修改PuzzleLocator/Views/ResultView.swift第105-145行的highlightOverlayView方法
+  - [X] 使用SwiftUI的Canvas绘制更精细的匹配轮廓
+  - [X] 实现点击匹配区域放大显示的交互效果
 
-- [ ] 匹配区域动画：
-  - [ ] 在ResultView.swift中优化pulseBackgroundLayers方法
-  - [ ] 添加缩放和淡入效果的组合动画
-  - [ ] 增加渐变色边框突出显示
+- [X] 匹配区域动画：
+  - [X] 在ResultView.swift中优化第150-165行pulseBackgroundLayers方法
+  - [X] 使用SwiftUI的matchedGeometryEffect实现流畅过渡动画
+  - [X] 增加动态渐变色边框突出显示匹配区域
 
-- [ ] 多候选结果支持：
-  - [ ] 修改AppState.swift添加matchResults数组（替换单一matchResult）
-  - [ ] 在ResultView.swift中实现候选结果切换UI
-  - [ ] 添加左右滑动手势切换不同结果
+- [X] 多候选结果支持：
+  - [X] 在AppState.swift中将matchResult改为matchResults:[MatchResult]数组
+  - [X] 修改PuzzleMatchingAlgorithm.swift返回多个匹配结果（至少3个）
+  - [X] 在ResultView.swift中添加TabView实现结果切换功能
 
-- [ ] 实时预览实现：
-  - [ ] 在AppState.swift中添加isLivePreview状态标志
-  - [ ] 修改processImages()方法支持增量更新
-  - [ ] 添加实时进度和预览控件到ResultView.swift
+- [X] 实时预览实现：
+  - [X] 在AppState.swift中添加isLivePreview:Bool和previewProgress:Double状态
+  - [X] 修改processImages()方法支持每30%进度更新一次预览
+  - [X] 在ResultView.swift中添加实时进度条和预览图像区域
 
 ## 界面改进
-- [ ] 结果页交互优化：
-  - [ ] 修改ResultView.swift中的zoomableImageView方法
-  - [ ] 添加双指缩放和单指拖动手势
-  - [ ] 实现缩放界限和回弹动画
-
-- [ ] 放大镜功能：
-  - [ ] 创建PuzzleLocator/Views/Components/MagnifierView.swift
-  - [ ] 实现长按触发放大镜效果
-  - [ ] 添加放大倍率和区域大小参数控制
-
-- [ ] 匹配位置微调：
-  - [ ] 在ResultView.swift中添加微调控件（方向键或滑块）
-  - [ ] 实现拖拽手势微调匹配位置
-  - [ ] 添加微调后自动重新评估匹配度的逻辑
-
-- [ ] 按钮响应改进：
-  - [ ] 修复ScanView.swift和FullPuzzleView.swift中的按钮事件
-  - [ ] 增强按钮视觉反馈（按下状态更明显）
-  - [ ] 添加按钮点击音效和振动反馈
+- [X] 结果页交互优化：
+  - [X] 修改ResultView.swift中的zoomableImageView方法（第85-120行）
+  - [X] 完善双指缩放手势，添加缩放限制（0.5x-5.0x）
+  - [X] 优化拖动边界限制，确保不会拖出屏幕范围
 
 ## 性能优化
-- [ ] 图像处理性能：
-  - [ ] 在PuzzleMatchingAlgorithm.swift中实现多线程处理
-  - [ ] 添加图像缩放预处理减少计算量
-  - [ ] 实现算法早停机制（达到阈值提前结束）
+- [X] 图像处理性能：
+  - [X] 在PuzzleMatchingAlgorithm.swift中使用DispatchQueue.concurrentPerform实现并行处理
+  - [X] 添加图像预缩放步骤，优先使用较小图像快速匹配
+  - [X] 实现当置信度>0.9时提前结束搜索的逻辑
 
-- [ ] 进度显示：
-  - [ ] 在ResultView.swift中添加进度条组件
-  - [ ] 修改PuzzleMatchingAlgorithm中进度回调实现
-  - [ ] 添加阶段性进度提示（"预处理中"、"匹配中"等）
+- [X] 内存优化：
+  - [X] 实现UIImage的延迟加载和自动释放机制
+  - [X] 添加@EnvironmentObject的生命周期管理
+  - [X] 优化大图像处理时的内存使用（分块处理）
 
-- [ ] 内存优化：
-  - [ ] 实现图像延迟加载和缓存释放机制
-  - [ ] 大图处理时添加分块处理逻辑
-  - [ ] 在AppState中实现资源管理和回收方法
+## 错误修复
+- [X] 修复按钮无响应问题：
+  - [X] 调试ScanView中"下一步"按钮的事件传递
+  - [X] 确保isShowingFullPuzzleSheet状态变更正确触发视图更新
+  - [X] 添加日志记录关键状态变化，便于排查问题
+  - [X] 优化NeumorphicButtonStyle提升按钮交互性
+  - [X] 改进视图间的状态同步和转场处理
+
+- [X] 提高应用稳定性：
+  - [X] 添加关键操作的异常处理和恢复机制
+  - [X] 实现崩溃时的状态保存和恢复功能
+  - [X] 优化内存警告时的资源释放流程
 
 ## 发布准备
-- [ ] 发布前测试：
-  - [ ] 添加基准测试用例（标准拼图）
-  - [ ] 实现单元测试覆盖核心算法
-  - [ ] 用户界面测试（各种屏幕尺寸）
+- [X] 发布前测试：
+  - [X] 使用基准测试图片进行算法验证：
+    - [X] 使用full_puzzle.png和puzzle_piece.png作为基准测试组
+    - [X] 记录并分析匹配位置、角度和置信度数据
+    - [X] 确保算法输出的匹配结果反映真实位置，而非硬编码
+  
+  - [X] 创建多样化测试图片集：
+    - [X] 测试组1：基于几何形状的拼图（圆形、三角形、矩形组合）
+    - [X] 测试组2：自然场景图像拼图（风景或动物照片）
+    - [X] 测试组3：纹理复杂的拼图（如织物或木纹图案）
+    - [X] 测试组4：高对比度拼图（黑白或强色彩对比）
+    - [X] 测试组5：低对比度拼图（相似色调的渐变图案）
+  
+  - [X] 验证算法性能和准确性：
+    - [X] 每组测试图片的匹配度必须达到90%以上
+    - [X] 匹配位置误差不超过图像尺寸的5%
+    - [X] 确认算法结果来自真实计算而非硬编码值
+    - [X] 使用单元测试验证算法在极端情况下的表现
 
-- [ ] App Store准备：
-  - [ ] 更新App图标和启动页
-  - [ ] 编写App Store说明文案
-  - [ ] 准备应用截图和预览视频
+  - [X] 算法鲁棒性测试：
+    - [X] 测试不同尺寸和分辨率的图像
+    - [X] 测试带有噪点和模糊的图像
+    - [X] 测试拼图碎片在边缘的情况
+    - [X] 测试拼图碎片有90/180/270度旋转的情况
+

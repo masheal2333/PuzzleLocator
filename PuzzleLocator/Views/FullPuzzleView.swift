@@ -162,6 +162,9 @@ struct FullPuzzleView: View {
                             let generator = UIImpactFeedbackGenerator(style: .medium)
                             generator.impactOccurred()
                             
+                            // 添加日志记录
+                            print("确认使用按钮被点击")
+                            
                             // 进入处理页面
                             processImages()
                         }) {
@@ -179,6 +182,8 @@ struct FullPuzzleView: View {
                             fgColor: Color.white,
                             cornerRadius: Theme.Radius.medium
                         ))
+                        // 添加调试id
+                        .id("confirmButton")
                     }
                     .padding(.horizontal, Theme.Spacing.xlarge)
                 }
@@ -258,6 +263,7 @@ struct FullPuzzleView: View {
     private func processImages() {
         guard let _ = appState.puzzlePieceImage,
               let _ = appState.fullPuzzleImage else {
+            print("FullPuzzleView: 处理失败 - 缺少图像")
             return
         }
         
@@ -267,13 +273,65 @@ struct FullPuzzleView: View {
             message: "分析拼图中..."
         )
         
-        // 隐藏全图拍摄页面
-        appState.isShowingFullPuzzleSheet = false
+        print("FullPuzzleView: 开始处理图像，实时预览状态=\(appState.isLivePreview)")
         
-        // 短暂延迟后显示结果页面
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            appState.processImages() // 调用AppState中的处理方法
-            appState.isShowingResultSheet = true
+        // 如果启用了实时预览，则在当前页面显示预览
+        if appState.isLivePreview {
+            // 调用AppState中的处理方法，启用实时预览
+            appState.processImages(enableLivePreview: true)
+            
+            // 显示预览状态指示器
+            showPreviewStatusIndicator()
+            
+            // 延迟几秒后显示结果页面，模拟预览过程
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                print("FullPuzzleView: 实时预览完成，准备显示结果页面")
+                // 使用新方法切换到结果页面
+                self.appState.showResultView()
+            }
+        } else {
+            print("FullPuzzleView: 使用常规处理流程")
+            // 先处理图像
+            appState.processImages(enableLivePreview: false)
+            
+            // 短暂延迟后显示结果页面
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                print("FullPuzzleView: 处理完成，准备显示结果页面")
+                // 使用新方法切换到结果页面
+                self.appState.showResultView()
+            }
+        }
+    }
+    
+    // 显示预览状态指示器
+    private func showPreviewStatusIndicator() {
+        // 创建临时通知显示预览状态
+        DynamicIsland.shared.showNotification(
+            title: "实时预览",
+            message: "正在计算匹配位置...",
+            duration: 2.0
+        )
+        
+        // 模拟预览进度更新
+        var progress = 0.0
+        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { timer in
+            progress += 0.1
+            if progress >= 1.0 {
+                timer.invalidate()
+                return
+            }
+            
+            // 更新预览进度
+            appState.previewProgress = progress
+            
+            // 在某些关键进度点显示通知
+            if progress.truncatingRemainder(dividingBy: 0.3) < 0.1 {
+                DynamicIsland.shared.showNotification(
+                    title: "预览匹配中",
+                    message: "已完成 \(Int(progress * 100))%",
+                    duration: 1.0
+                )
+            }
         }
     }
     

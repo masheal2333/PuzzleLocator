@@ -7,6 +7,7 @@ struct ScanView: View {
     @State private var scanPulse = false
     @State private var showFlash = false
     @State private var shouldPlayShutterSound = false
+    @State private var isRealTimePreviewEnabled = true
     
     var body: some View {
         ZStack {
@@ -51,12 +52,33 @@ struct ScanView: View {
                     
                     Spacer()
                     
-                    // 平衡布局的空白视图
-                    Color.clear
-                        .frame(width: 60, height: 40)
+                    // 实时预览开关
+                    Toggle("", isOn: $isRealTimePreviewEnabled)
+                        .toggleStyle(SwitchToggleStyle(tint: Theme.Colors.primaryDefault))
+                        .labelsHidden()
+                        .frame(width: 40)
+                        .overlay(
+                            Image(systemName: "bolt.fill")
+                                .font(.system(size: 10))
+                                .foregroundColor(isRealTimePreviewEnabled ? Color.white : Theme.Colors.textSecondaryDefault)
+                                .offset(x: isRealTimePreviewEnabled ? 8 : -8)
+                        )
                 }
                 .padding(.horizontal, Theme.Spacing.large)
                 .padding(.top, Theme.Spacing.large)
+                
+                // 实时预览状态提示
+                if isRealTimePreviewEnabled {
+                    Text("实时预览已开启")
+                        .font(.system(size: Theme.FontSizes.xsmall))
+                        .foregroundColor(Theme.Colors.accentDefault)
+                        .padding(.vertical, Theme.Spacing.xsmall)
+                        .padding(.horizontal, Theme.Spacing.small)
+                        .background(
+                            Capsule()
+                                .fill(Theme.Colors.accentDefault.opacity(0.1))
+                        )
+                }
                 
                 // 步骤指示器
                 StepIndicator(currentStep: 1, totalSteps: 3)
@@ -130,6 +152,9 @@ struct ScanView: View {
                     if appState.puzzlePieceImage != nil {
                         // 如果已有图像，重置并准备重新拍摄
                         appState.puzzlePieceImage = nil
+                        appState.isLivePreview = false
+                        appState.previewProgress = 0.0
+                        appState.previewResult = nil
                     } else {
                         // 触感反馈
                         let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -171,12 +196,22 @@ struct ScanView: View {
                 ))
                 .padding(.horizontal, Theme.Spacing.xlarge)
                 
+                // 如果启用了实时预览并有拼图碎片图像，显示实时预览状态
+                if appState.puzzlePieceImage != nil && isRealTimePreviewEnabled {
+                    realTimePreviewView()
+                        .padding(.top, Theme.Spacing.medium)
+                        .padding(.horizontal, Theme.Spacing.large)
+                }
+                
                 // 下一步按钮（仅在有图像时显示）
                 if appState.puzzlePieceImage != nil {
                     Button(action: {
                         // 增强触感反馈 - 使用双重触感提供明显的反馈
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
+                        
+                        // 添加日志记录
+                        print("ScanView: 下一步按钮被点击")
                         
                         // 再增加一次不同类型的触感
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -192,8 +227,19 @@ struct ScanView: View {
                         
                         // 进入下一步 - 显示全图拍摄页面
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            // 设置实时预览状态
+                            appState.isLivePreview = isRealTimePreviewEnabled
+                            
+                            print("ScanView: 将isLivePreview设置为 \(isRealTimePreviewEnabled)")
+                            
                             // 使用专门的导航方法
                             appState.navigateToFullPuzzleView()
+                            
+                            // 确保UI更新
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                print("ScanView: 导航后状态 - showFullPuzzle=\(appState.showFullPuzzle), isShowingFullPuzzleSheet=\(appState.isShowingFullPuzzleSheet)")
+                                appState.objectWillChange.send()
+                            }
                         }
                     }) {
                         HStack {
@@ -211,6 +257,8 @@ struct ScanView: View {
                     .shadow(color: Color.black.opacity(0.3), radius: 5, x: 2, y: 2) // 增加阴影提高视觉反馈
                     .padding(.top, Theme.Spacing.medium)
                     .padding(.horizontal, Theme.Spacing.xlarge)
+                    // 添加调试id
+                    .id("nextStepButton")
                 }
                 
                 Spacer()
@@ -227,6 +275,11 @@ struct ScanView: View {
                     title: "拍照成功",
                     message: "已捕获拼图碎片图像"
                 )
+                
+                // 如果启用了实时预览，模拟预览进度
+                if isRealTimePreviewEnabled {
+                    simulatePreviewProgress()
+                }
             }
         }
         .onAppear {
@@ -237,6 +290,131 @@ struct ScanView: View {
         .onChange(of: shouldPlayShutterSound) { newValue in
             if newValue {
                 playShutterSound()
+            }
+        }
+    }
+    
+    // 实时预览视图
+    private func realTimePreviewView() -> some View {
+        VStack(spacing: Theme.Spacing.small) {
+            // 预览状态文本
+            HStack {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: Theme.FontSizes.small))
+                    .foregroundColor(Theme.Colors.accentDefault)
+                
+                Text("实时智能预览")
+                    .font(.system(size: Theme.FontSizes.medium, weight: .medium))
+                    .foregroundColor(Theme.Colors.textPrimaryDefault)
+                
+                Spacer()
+                
+                // 预览进度
+                if appState.previewProgress > 0 {
+                    Text("\(Int(appState.previewProgress * 100))%")
+                        .font(.system(size: Theme.FontSizes.small, weight: .bold))
+                        .foregroundColor(Theme.Colors.primaryDefault)
+                }
+            }
+            
+            // 进度条
+            if appState.previewProgress > 0 {
+                ProgressView(value: appState.previewProgress, total: 1.0)
+                    .tint(Theme.Colors.primaryDefault)
+                    .animation(.easeInOut, value: appState.previewProgress)
+            }
+            
+            // 预览结果信息
+            if let previewResult = appState.previewResult, appState.previewProgress > 0.3 {
+                HStack(spacing: Theme.Spacing.large) {
+                    // 位置信息
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("预估位置")
+                            .font(.system(size: Theme.FontSizes.xsmall))
+                            .foregroundColor(Theme.Colors.textSecondaryDefault)
+                        
+                        Text(String(format: "%.0f%%,%.0f%%", 
+                                   previewResult.location.x * 100, 
+                                   previewResult.location.y * 100))
+                            .font(.system(size: Theme.FontSizes.small, weight: .medium))
+                            .foregroundColor(Theme.Colors.textPrimaryDefault)
+                    }
+                    
+                    Divider()
+                        .frame(height: 24)
+                    
+                    // 匹配度信息
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("预估匹配度")
+                            .font(.system(size: Theme.FontSizes.xsmall))
+                            .foregroundColor(Theme.Colors.textSecondaryDefault)
+                        
+                        Text("\(Int(previewResult.confidence * 100))%")
+                            .font(.system(size: Theme.FontSizes.small, weight: .medium))
+                            .foregroundColor(previewResult.confidence > 0.7 ? 
+                                           Theme.Colors.successDefault : 
+                                           Theme.Colors.warningDefault)
+                    }
+                }
+                .padding(.top, Theme.Spacing.xsmall)
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.small)
+                .fill(Theme.Colors.backgroundSecondary)
+                .shadow(color: Theme.Colors.shadowDefault.opacity(0.3), radius: 3, x: 1, y: 1)
+        )
+    }
+    
+    // 模拟预览进度
+    private func simulatePreviewProgress() {
+        // 重置进度和结果
+        appState.previewProgress = 0.01
+        appState.previewResult = nil
+        
+        // 模拟30%进度的预览结果
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            withAnimation {
+                appState.previewProgress = 0.3
+                appState.previewResult = AppState.MatchResult(
+                    position: CGPoint(x: CGFloat.random(in: 0.3...0.7), 
+                                     y: CGFloat.random(in: 0.3...0.7)),
+                    angle: Double.random(in: -5...5),
+                    confidence: 0.6
+                )
+            }
+        }
+        
+        // 模拟60%进度的预览结果
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            withAnimation {
+                appState.previewProgress = 0.6
+                appState.previewResult = AppState.MatchResult(
+                    position: CGPoint(x: CGFloat.random(in: 0.4...0.6), 
+                                     y: CGFloat.random(in: 0.4...0.6)),
+                    angle: Double.random(in: -3...3),
+                    confidence: 0.75
+                )
+            }
+        }
+        
+        // 模拟90%进度的预览结果
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
+            withAnimation {
+                appState.previewProgress = 0.9
+                appState.previewResult = AppState.MatchResult(
+                    position: CGPoint(x: 0.5, y: 0.5),
+                    angle: 0,
+                    confidence: 0.88
+                )
+            }
+        }
+        
+        // 完成预览
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            withAnimation {
+                appState.previewProgress = 1.0
             }
         }
     }
