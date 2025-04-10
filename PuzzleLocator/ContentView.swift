@@ -19,7 +19,6 @@ struct ContentView: View {
     @State private var isLoading = false
     @State private var devModeCounter = 0
     @State private var showDevMenu = false
-    @State private var showRecoveryAlert = false
     
     var body: some View {
         ZStack {
@@ -59,27 +58,13 @@ struct ContentView: View {
                 }
             }
             .onChange(of: appState.isShowingFullPuzzleSheet) { newValue in
-                print("状态变更: isShowingFullPuzzleSheet = \(newValue)")
                 withAnimation {
                     appState.showFullPuzzle = newValue
                 }
-                
-                // 确保状态更新通知
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    print("状态确认: showFullPuzzle = \(appState.showFullPuzzle)")
-                    appState.objectWillChange.send()
-                }
             }
             .onChange(of: appState.isShowingResultSheet) { newValue in
-                print("状态变更: isShowingResultSheet = \(newValue)")
                 withAnimation {
                     appState.showResult = newValue
-                }
-                
-                // 确保状态更新通知
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    print("状态确认: showResult = \(appState.showResult)")
-                    appState.objectWillChange.send()
                 }
             }
             
@@ -135,23 +120,6 @@ struct ContentView: View {
             appState.selectedPuzzle = nil
             appState.selectedPiece = nil
             #endif
-        }
-        .onAppear {
-            // 注册崩溃恢复通知观察者
-            NotificationCenter.default.addObserver(
-                forName: Notification.Name("ShowRecoveryAlert"),
-                object: nil,
-                queue: .main
-            ) { _ in
-                showRecoveryAlert = true
-            }
-        }
-        .alert("应用已恢复", isPresented: $showRecoveryAlert) {
-            Button("确定") {
-                showRecoveryAlert = false
-            }
-        } message: {
-            Text("应用似乎在上次运行时异常关闭，已为您恢复之前的状态。")
         }
     }
     

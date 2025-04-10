@@ -17,13 +17,13 @@ struct DynamicIsland: View {
         @Published var message: String = ""
         @Published var isPresented: Bool = false
         
-        func showNotification(title: String, message: String, duration: Double = 2.5) {
+        func showNotification(title: String, message: String) {
             self.title = title
             self.message = message
             self.isPresented = true
             
             // 自动隐藏
-            DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in // 使用传入的duration参数
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in // 延长通知显示时间
                 self?.isPresented = false
             }
         }

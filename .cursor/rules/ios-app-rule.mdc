@@ -6,9 +6,6 @@ alwaysApply: true
 
 # Your rule content
 
-### coding rule
-- Always make sure the buttons are working as expected
-
 ### 代码规范
 - 使用SwiftLint保证代码风格一致性
 - 遵循Swift API设计指南

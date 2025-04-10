@@ -14,7 +14,6 @@ struct Theme {
         
         // 使用默认颜色的兼容方案
         static var backgroundDefault: Color { Color(UIColor.systemGray6) }
-        static var backgroundSecondary: Color { Color(UIColor.systemGray5) }
         static var primaryDefault: Color { Color(red: 141/255, green: 181/255, blue: 128/255) }
         static var accentDefault: Color { Color(red: 106/255, green: 168/255, blue: 79/255) }
         static var textPrimaryDefault: Color { Color(UIColor.label) }
@@ -23,21 +22,6 @@ struct Theme {
         static var highlightDefault: Color { Color.white.opacity(0.9) }
         static var shadowDark: Color { Color.black.opacity(0.25) }
         static var shadowLight: Color { Color.white.opacity(0.9) }
-        static var successDefault: Color { Color.green }
-        static var warningDefault: Color { Color.orange }
-        static var errorDefault: Color { Color.red }
-        
-        // 更鲜明的绿色用于高亮框
-        static var matchHighlight: Color { Color(red: 57/255, green: 255/255, blue: 20/255) }
-        
-        // 背景渐变
-        static var backgroundGradient: LinearGradient {
-            LinearGradient(
-                gradient: Gradient(colors: [backgroundDefault, backgroundDefault.opacity(0.8)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        }
     }
     
     // 字体尺寸
@@ -114,7 +98,7 @@ struct NeumorphicButtonStyle: ButtonStyle {
                 }
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
+            .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
             .compositingGroup()
     }
 }
