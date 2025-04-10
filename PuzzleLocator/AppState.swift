@@ -430,10 +430,10 @@ class AppState: ObservableObject {
                             angle: Double(matchResult.rotation) + Double.random(in: -5...5),
                             confidence: max(0.6, matchResult.confidence - 0.15),
                             highlightRect: CGRect(
-                                x: min(max(0.1, matchResult.highlightRect?.minX ?? 0 + offsetX1), 0.9),
-                                y: min(max(0.1, matchResult.highlightRect?.minY ?? 0 + offsetY1), 0.9),
-                                width: matchResult.highlightRect?.width ?? 0,
-                                height: matchResult.highlightRect?.height ?? 0
+                                x: min(max(0.1, matchResult.highlightRect.minX + offsetX1), 0.9),
+                                y: min(max(0.1, matchResult.highlightRect.minY + offsetY1), 0.9),
+                                width: matchResult.highlightRect.width,
+                                height: matchResult.highlightRect.height
                             )
                         )
                         
@@ -448,10 +448,10 @@ class AppState: ObservableObject {
                             angle: Double(matchResult.rotation) + Double.random(in: -15...15),
                             confidence: max(0.4, matchResult.confidence - 0.3),
                             highlightRect: CGRect(
-                                x: min(max(0.1, matchResult.highlightRect?.minX ?? 0 + offsetX2), 0.9),
-                                y: min(max(0.1, matchResult.highlightRect?.minY ?? 0 + offsetY2), 0.9),
-                                width: matchResult.highlightRect?.width ?? 0,
-                                height: matchResult.highlightRect?.height ?? 0
+                                x: min(max(0.1, matchResult.highlightRect.minX + offsetX2), 0.9),
+                                y: min(max(0.1, matchResult.highlightRect.minY + offsetY2), 0.9),
+                                width: matchResult.highlightRect.width,
+                                height: matchResult.highlightRect.height
                             )
                         )
                         

@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve PuzzleLocator
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/puzzlelocator
+Environment="PATH=/var/www/puzzlelocator/venv/bin"
+ExecStart=/var/www/puzzlelocator/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 app.main:app
+
+[Install]
+WantedBy=multi-user.target 

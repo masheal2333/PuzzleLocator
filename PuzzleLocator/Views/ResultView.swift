@@ -379,7 +379,7 @@ struct ResultView: View {
                         // 绘制半透明背景
                         context.fill(
                             Path(CGRect(x: 0, y: 0, width: canvasSize.width, height: canvasSize.height)),
-                            with: .color(Theme.Colors.backgroundDefault.opacity(0.3))
+                            with: .color(Color.black.opacity(0.4))
                         )
                         
                         // 创建当前选中的匹配区域路径
@@ -390,45 +390,23 @@ struct ResultView: View {
                             height: markerHeight
                         ), cornerRadius: 2)
                         
-                        // 创建全屏路径
-                        var overlayPath = Path(CGRect(
-                            x: 0,
-                            y: 0,
-                            width: canvasSize.width,
-                            height: canvasSize.height
-                        ))
-                        
-                        // 绘制半透明遮罩 - 兼容iOS 15+的方法
-                        // 先绘制整个背景
-                        context.fill(
-                            overlayPath,
-                            with: .color(Color.black.opacity(0.4))
-                        )
-                        
-                        // 再清除匹配区域（通过绘制透明色）
+                        // 清除匹配区域（通过绘制透明色）
                         context.fill(
                             matchPath,
                             with: .color(Color.clear)
                         )
                         
-                        // 绘制匹配区域边框
+                        // 绘制匹配区域边框 - 使用更明显的绿色边框
                         context.stroke(
                             matchPath,
-                            with: .linearGradient(
-                                Gradient(colors: [
-                                    Theme.Colors.matchHighlight,
-                                    Theme.Colors.matchHighlight.opacity(0.7)
-                                ]),
-                                startPoint: CGPoint(x: markerX, y: markerY),
-                                endPoint: CGPoint(x: markerX + markerWidth, y: markerY + markerHeight)
-                            ),
+                            with: .color(Theme.Colors.matchHighlight),
                             lineWidth: 4.0
                         )
                         
-                        // 绘制匹配点
+                        // 绘制匹配点十字准星
                         let centerX = markerX + markerWidth/2
                         let centerY = markerY + markerHeight/2
-                        let crosshairSize: CGFloat = 10
+                        let crosshairSize: CGFloat = 15
                         
                         // 水平线
                         context.stroke(
@@ -437,7 +415,7 @@ struct ResultView: View {
                                 path.addLine(to: CGPoint(x: centerX + crosshairSize, y: centerY))
                             },
                             with: .color(Theme.Colors.matchHighlight),
-                            lineWidth: 2.0
+                            lineWidth: 2.5
                         )
                         
                         // 垂直线
@@ -447,7 +425,7 @@ struct ResultView: View {
                                 path.addLine(to: CGPoint(x: centerX, y: centerY + crosshairSize))
                             },
                             with: .color(Theme.Colors.matchHighlight),
-                            lineWidth: 2.0
+                            lineWidth: 2.5
                         )
                     }
                     
